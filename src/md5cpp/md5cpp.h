@@ -42,21 +42,35 @@ class MD5CPP_API md5 {
 private:
 	uint32_t m_buf[4];
 	uint32_t m_bits[2];
-	uint8_t  m_in[64]; // TODO - basis BUFFER auf 32bit
+	uint32_t  m_in[16];
 
 private:
-	// TODO direkt auf 32bit type anwenden
-	void byteReverse(uint8_t* buf, unsigned int longs) {
+	void byteReverse(uint32_t* buf32, unsigned int longs) {
 		do {
+			uint8_t* buf = reinterpret_cast<uint8_t*>(buf32);
 			uint32_t t = (uint32_t)((unsigned)buf[3] << 8 | buf[2]) << 16 | ((unsigned)buf[1] << 8 | buf[0]);
 			*(uint32_t *)buf = t;
-			buf += 4;
+			++buf32;
 		} while (--longs);
 	}
 public:
 	md5() {
 		initialize();
 	}
+
+	// TODO: init + finalize ctor from string / vector
+
+	// TODO: move implementation to cpp
+
+	// TODO: update with string / vector
+
+	// TODO: finalize with return vector of uint8_t
+
+	// TODO: m_is_finalized flag
+
+	// TODO: as_hex with hex-string return
+
+	// TODO: W4 !
 
 	/*
 	* Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
@@ -90,7 +104,7 @@ public:
 		/* Handle any leading odd-sized chunks */
 
 		if (t) {
-			unsigned char *p = (unsigned char *)m_in + t;
+			uint8_t* p = reinterpret_cast<uint8_t*>(m_in) + t;
 
 			t = 64 - t;
 			if (len < t) {
@@ -124,7 +138,7 @@ public:
 
 		/* Set the first char of padding to 0x80.  This is safe since there is
 		always at least one byte free */
-		uint8_t* p = m_in + count;
+		uint8_t* p = reinterpret_cast<uint8_t*>(m_in) + count;
 		*p++ = 0x80;
 
 		/* Bytes of padding needed to make 64 bytes */
@@ -146,11 +160,11 @@ public:
 		byteReverse(m_in, 14);
 
 		/* Append length in bits and transform */
-		((uint32_t *)m_in)[14] = m_bits[0];
-		((uint32_t *)m_in)[15] = m_bits[1];
+		m_in[14] = m_bits[0];
+		m_in[15] = m_bits[1];
 
 		transform();
-		byteReverse((uint8_t*)m_buf, 4);
+		byteReverse(m_buf, 4);
 		memcpy(out_digest, m_buf, 16);
 		
 		// No memset() of context! Will be optimzed out by compiler anyway if we 
