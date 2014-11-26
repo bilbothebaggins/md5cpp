@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "..\md5cpp\md5cpp.h"
+#include "..\common\hexstr2bin.h"
 #include <cassert>
 
 using namespace std;
@@ -43,6 +44,13 @@ void check_all_variants(const string& str, const uint8_t* expected) {
 	check_split_update_hash(str, expected);
 }
 
+void check_all_variants(const string& str, const string& expected) {
+	std::vector<uint8_t> exp_buffer(expected.size() / 2, 0x00);
+	common::hexstr2bin(expected.c_str(), exp_buffer.data());
+	check_single_update_hash(str, exp_buffer.data());
+	check_split_update_hash(str, exp_buffer.data());
+}
+
 TEST_CASE("MD5 standard testsuite") {
 
 	SECTION("md5:empty") {
@@ -59,6 +67,14 @@ TEST_CASE("MD5 standard testsuite") {
 			                         0x31, 0xc3, 0x99, 0xe2, 0x69, 0x77, 0x26, 0x61 };
 
 		check_all_variants(str, expected);
+	}
+
+	SECTION("md5:...") {
+		check_all_variants("abc", "900150983cd24fb0d6963f7d28e17f72");
+		check_all_variants("message digest", "f96b697d7cb7938d525a2f31aaf161d0");
+		check_all_variants("abcdefghijklmnopqrstuvwxyz", "c3fcd3d76192e4007dfb496cca67e13b");
+		check_all_variants("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", "d174ab98d277d9f5a5611c2c9f419d9f");
+		check_all_variants("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "57edf4a22be3c955ac49da2e2107b67a");
 	}
 }
 

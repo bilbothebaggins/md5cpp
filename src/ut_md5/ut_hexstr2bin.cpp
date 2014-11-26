@@ -12,6 +12,12 @@ TEST_CASE("test string conversion") {
 		CHECK(0 == memcmp(expected, buffer, len));
 	}
 
+	SECTION("zerozero") {
+		size_t len = hexstr2bin("0000", buffer);
+		const uint8_t expected[] = { 0, 0 };
+		CHECK(0 == memcmp(expected, buffer, len));
+	}
+
 	SECTION("one") {
 		size_t len = hexstr2bin("01", buffer);
 		const uint8_t expected[] = { 1 };
