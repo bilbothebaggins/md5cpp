@@ -15,8 +15,11 @@ void check_single_update_hash(const string& str, const uint8_t* expected) {
 
 	vector<uint8_t> input(str.begin(), str.end());
 	hasher.update(input.data(), input.size());
+	
 	hasher.finalize(digest_result);
+	CHECK(0 == memcmp(expected, digest_result, 16));
 
+	hasher.get_hash(digest_result);
 	CHECK(0 == memcmp(expected, digest_result, 16));
 }
 
@@ -34,8 +37,11 @@ void check_split_update_hash(const string& str, const uint8_t* expected) {
 
 	hasher.update(input.data(), len1);
 	hasher.update(input.data()+len1, len2);
-	hasher.finalize(digest_result);
 
+	hasher.finalize(digest_result);
+	CHECK(0 == memcmp(expected, digest_result, 16));
+
+	hasher.get_hash(digest_result);
 	CHECK(0 == memcmp(expected, digest_result, 16));
 }
 
