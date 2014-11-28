@@ -43,6 +43,7 @@ private:
 	uint32_t m_buf[4];
 	uint32_t m_bits[2];
 	uint32_t m_in[16];
+	bool     m_finalized;
 
 public:
 	//! initialize
@@ -70,11 +71,15 @@ public:
 	//! of bytes.
 	void update(const uint8_t* buf, size_t len);
 
-	//! Finalize hash into `out_digest` (must have room for 16 bytes!)
-	void finalize(uint8_t* out_digest);
+	//! Finalize hash into `out_digest`, if provided (must have room for 16 bytes!)
+	void finalize(uint8_t* out_digest=nullptr);
+	
+	//! return finalized hash into `out_digest` (must have room for 16 bytes!)
+	void get_hash(uint8_t* out_digest);
 
 	private:
 		void transform();
+		void check_not_finalized(const char* context);
 };
 
 }

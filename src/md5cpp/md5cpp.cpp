@@ -1,4 +1,6 @@
 #include "md5cpp.h"
+#include <stdexcept>
+#include <sstream>
 
 namespace md5cpp {
 
@@ -16,6 +18,8 @@ md5::md5() {
 }
 
 void md5::initialize() {
+	m_finalized = false;
+
 	m_buf[0] = 0x67452301;
 	m_buf[1] = 0xefcdab89;
 	m_buf[2] = 0x98badcfe;
@@ -27,9 +31,18 @@ void md5::initialize() {
 	// Note: m_in uninitialzed: OK
 }
 
-void md5::update(const uint8_t* buf, size_t len) {
-	/* Update bitcount */
+void md5::check_not_finalized(const char* context) {
+	if (m_finalized) {
+		std::stringstream ss;
+		ss << (context ? context : "") << " : md5 object @" << (void*)this << " is already finalized!";
+		throw std::logic_error(ss.str());
+	}
+}
 
+void md5::update(const uint8_t* buf, size_t len) {
+	check_not_finalized(__FUNCTION__);
+
+	/* Update bitcount */
 	uint32_t t = m_bits[0];
 	if ((m_bits[0] = t + ((uint32_t)len << 3)) < t) {
 		m_bits[1]++; 	/* Carry from low to high */
@@ -69,7 +82,9 @@ void md5::update(const uint8_t* buf, size_t len) {
 	memcpy(m_in, buf, len);
 }
 
-void md5::finalize(uint8_t* out_digest) {
+void md5::finalize(uint8_t* out_digest/*=nullptr*/) {
+	check_not_finalized(__FUNCTION__);
+
 	/* Compute number of bytes mod 64 */
 	uint32_t count = (m_bits[0] >> 3) & 0x3F;
 
@@ -102,12 +117,20 @@ void md5::finalize(uint8_t* out_digest) {
 
 	transform();
 	byteReverse(m_buf, 4);
-	memcpy(out_digest, m_buf, 16);
+
+	if (out_digest) {
+		get_hash(out_digest);
+	}
 
 	// No memset() of state! Will be optimzed out by compiler anyway if we 
 	// don't jump through several hoops:
 	// memset(..., 0, ...);
 }
+
+void md5::get_hash(uint8_t* out_digest) {
+	memcpy(out_digest, m_buf, 16);
+}
+
 
 // TODO inline funcktionen -
 /* The four core functions - F1 is optimized somewhat */
