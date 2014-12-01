@@ -10,16 +10,25 @@ using namespace std;
 
 void check_single_update_hash(const string& str, const uint8_t* expected) {
 	using namespace md5cpp;
-	md5cpp::md5 hasher;
+	md5cpp::md5 h1;
+	md5cpp::md5 h2;
+	md5cpp::md5 h3;
+
 	uint8_t digest_result[16];
 
 	vector<uint8_t> input(str.begin(), str.end());
-	hasher.update(input.data(), input.size());
-	
-	hasher.finalize(digest_result);
+	h1.update(input.data(), input.size());
+	h2.update(input.begin(), input.end());
+	h3.update(str);
+
+	h1.finalize(digest_result);
+	CHECK(0 == memcmp(expected, digest_result, 16));
+	h1.get_hash(digest_result);
 	CHECK(0 == memcmp(expected, digest_result, 16));
 
-	hasher.get_hash(digest_result);
+	h2.finalize(digest_result);
+	CHECK(0 == memcmp(expected, digest_result, 16));
+	h2.get_hash(digest_result);
 	CHECK(0 == memcmp(expected, digest_result, 16));
 }
 

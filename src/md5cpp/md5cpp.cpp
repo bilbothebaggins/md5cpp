@@ -82,6 +82,10 @@ void md5::update(const uint8_t* buf, size_t len) {
 	memcpy(m_in, buf, len);
 }
 
+void md5::update(const std::string& str) {
+	update(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+}
+
 void md5::finalize(uint8_t* out_digest/*=nullptr*/) {
 	check_not_finalized(__FUNCTION__);
 
@@ -132,7 +136,7 @@ void md5::get_hash(uint8_t* out_digest) {
 }
 
 
-// TODO inline funcktionen -
+// TODO inline functions -
 /* The four core functions - F1 is optimized somewhat */
 /* #define F1(x, y, z) (x & y | ~x & z) */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
