@@ -7,9 +7,27 @@
 #include <cassert>
 
 using namespace std;
+using namespace System;
 
+// Test of the .NET class
+void check_single_update_hash_cli(const string& str, const uint8_t* expected) {
+	array<Byte>^ data = gcnew array<Byte>(str.size());
+	IntPtr ptr((void*)str.data());
+	System::Runtime::InteropServices::Marshal::Copy(ptr, data, 0, str.size());
+
+	MD5Cli::MD5^ h1 = gcnew MD5Cli::MD5();
+	
+	h1->Update(data);
+	array<Byte>^ result = h1->FinalizeHash()->GetDigest();
+
+	REQUIRE(result->Length > 0);
+
+	pin_ptr<Byte> p_result = &result[0];
+	CHECK(0 == memcmp(expected, p_result, 16));
+}
+
+// Test single update call
 void check_single_update_hash(const string& str, const uint8_t* expected) {
-	using namespace md5cpp;
 	md5cpp::md5 h1;
 	md5cpp::md5 h2;
 	md5cpp::md5 h3;
@@ -32,8 +50,8 @@ void check_single_update_hash(const string& str, const uint8_t* expected) {
 	CHECK(0 == memcmp(expected, digest_result, 16));
 }
 
+// test two update calls with same overall data as single call above
 void check_split_update_hash(const string& str, const uint8_t* expected) {
-	using namespace md5cpp;
 	md5cpp::md5 hasher;
 	uint8_t digest_result[16];
 
@@ -57,6 +75,7 @@ void check_split_update_hash(const string& str, const uint8_t* expected) {
 void check_all_variants(const string& str, const uint8_t* expected) {
 	check_single_update_hash(str, expected);
 	check_split_update_hash(str, expected);
+	check_single_update_hash_cli(str, expected);
 }
 
 void check_all_variants(const string& str, const string& expected) {
@@ -64,6 +83,7 @@ void check_all_variants(const string& str, const string& expected) {
 	common::hexstr2bin(expected.c_str(), exp_buffer.data());
 	check_single_update_hash(str, exp_buffer.data());
 	check_split_update_hash(str, exp_buffer.data());
+	check_single_update_hash_cli(str, exp_buffer.data());
 }
 
 TEST_CASE("MD5 standard testsuite") {

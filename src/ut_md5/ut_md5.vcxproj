@@ -21,6 +21,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -28,6 +29,7 @@
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -95,6 +97,9 @@
     <ClCompile Include="ut_md5.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\md5cli\md5cli.vcxproj">
+      <Project>{ad81ae54-7a40-4557-bf9e-f14c77babeca}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\md5cpp\md5cpp.vcxproj">
       <Project>{f1e1498d-5b11-4865-81fd-19bd7707aff0}</Project>
     </ProjectReference>
