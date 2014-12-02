@@ -32,9 +32,13 @@
 #include <string>
 
 #ifdef MD5CPP_EXPORTS
-#define MD5CPP_API __declspec(dllexport)
+	#define MD5CPP_API __declspec(dllexport)
 #else
-#define MD5CPP_API __declspec(dllimport)
+	#ifndef MD5CPP_STATIC
+		#define MD5CPP_API __declspec(dllimport)
+	#else
+		#define MD5CPP_API /**/
+	#endif
 #endif
 
 namespace md5cpp {

@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "md5cpp", "..\md5cpp\md5cpp.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ut_md5", "..\ut_md5\ut_md5.vcxproj", "{6C9D0155-AB7E-4A52-93FF-BAE4F8E7C38C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "md5cli", "..\md5cli\md5cli.vcxproj", "{AD81AE54-7A40-4557-BF9E-F14C77BABECA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,10 @@ Global
 		{6C9D0155-AB7E-4A52-93FF-BAE4F8E7C38C}.Debug|Win32.Build.0 = Debug|Win32
 		{6C9D0155-AB7E-4A52-93FF-BAE4F8E7C38C}.Release|Win32.ActiveCfg = Release|Win32
 		{6C9D0155-AB7E-4A52-93FF-BAE4F8E7C38C}.Release|Win32.Build.0 = Release|Win32
+		{AD81AE54-7A40-4557-BF9E-F14C77BABECA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AD81AE54-7A40-4557-BF9E-F14C77BABECA}.Debug|Win32.Build.0 = Debug|Win32
+		{AD81AE54-7A40-4557-BF9E-F14C77BABECA}.Release|Win32.ActiveCfg = Release|Win32
+		{AD81AE54-7A40-4557-BF9E-F14C77BABECA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
