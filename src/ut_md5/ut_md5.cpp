@@ -9,6 +9,9 @@
 using namespace std;
 using namespace System;
 
+// TODO ! Add tests for copy of the hash objects!
+
+
 // Test of the .NET class
 void check_single_update_hash_cli(const string& str, const uint8_t* expected) {
 	array<Byte>^ data = gcnew array<Byte>(str.size());
