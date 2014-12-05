@@ -1,36 +1,93 @@
-// ut_md5.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
 #include "..\md5cpp\md5cpp.h"
 #include "..\common\hexstr2bin.h"
+#include "..\common\bin2hexstr.h"
 #include <cassert>
 
 using namespace std;
 using namespace System;
+using namespace common;
 
-// TODO ! Add tests for copy of the hash objects!
+array<Byte>^ make_clrarray(const string& str) {
+	array<Byte>^ managed_array = gcnew array<Byte>(str.size());
+	IntPtr ptr((void*)str.data());
+	System::Runtime::InteropServices::Marshal::Copy(ptr, managed_array, 0, str.size());
+	return managed_array;
+}
 
+void check_incremental_hashes(const string& str, const uint8_t* expected) {
+	INFO("Input: 0x[" << bin2hexstr(str) << "] (\"" << str << "\")");
+	INFO("Expected: 0x[" << bin2hexstr(expected, 16) << "]");
+
+	MD5Cli::MD5^ h1 = gcnew MD5Cli::MD5();
+
+	array<Byte>^ input = make_clrarray(str);
+
+	const int len = input->Length;
+	int len2 = len / 2;
+	int len1 = len - len2;
+	assert(len1 + len2 == len);
+
+	array<Byte>^ part = gcnew array<Byte>(len2);
+	array<Byte>::Copy(input, 0, part, 0, len2);
+	h1->Update(part);
+
+	MD5Cli::MD5^ h2 = h1->FullCopy();
+
+	part = gcnew array<Byte>(len1);
+	array<Byte>::Copy(input, len2, part, 0, len1);
+	h1->Update(part);
+	h2->Update(part);
+
+	MD5Cli::MD5^ h3 = h2->FullCopy();
+
+	auto r1 = h1->FinalizeHash()->GetDigest();
+	auto r2 = h2->FinalizeHash()->GetDigest();
+	auto r3 = h3->FinalizeHash()->GetDigest();
+
+	REQUIRE(r1->Length == 16);
+	REQUIRE(r2->Length == 16);
+	REQUIRE(r3->Length == 16);
+
+	{
+		pin_ptr<Byte> p = &r1[0];
+		INFO("Got:      0x[" << bin2hexstr(p, 16) << "]");
+		CHECK(0 == memcmp(expected, p, 16));
+	}
+	{
+		pin_ptr<Byte> p = &r1[0];
+		INFO("Got:      0x[" << bin2hexstr(p, 16) << "]");
+		CHECK(0 == memcmp(expected, p, 16));
+	}
+	{
+		pin_ptr<Byte> p = &r1[0];
+		INFO("Got:      0x[" << bin2hexstr(p, 16) << "]");
+		CHECK(0 == memcmp(expected, p, 16));
+	}
+}
 
 // Test of the .NET class
 void check_single_update_hash_cli(const string& str, const uint8_t* expected) {
-	array<Byte>^ data = gcnew array<Byte>(str.size());
-	IntPtr ptr((void*)str.data());
-	System::Runtime::InteropServices::Marshal::Copy(ptr, data, 0, str.size());
+	INFO("Input: 0x[" << bin2hexstr(str) << "] (\"" << str << "\")");
+	INFO("Expected: 0x[" << bin2hexstr(expected, 16) << "]");
+	array<Byte>^ input = make_clrarray(str);
 
 	MD5Cli::MD5^ h1 = gcnew MD5Cli::MD5();
 	
-	h1->Update(data);
+	h1->Update(input);
 	array<Byte>^ result = h1->FinalizeHash()->GetDigest();
 
 	REQUIRE(result->Length > 0);
 
 	pin_ptr<Byte> p_result = &result[0];
+	INFO("Got:      0x[" << bin2hexstr(p_result, 16) << "]");
 	CHECK(0 == memcmp(expected, p_result, 16));
 }
 
 // Test single update call
 void check_single_update_hash(const string& str, const uint8_t* expected) {
+	INFO("Input: 0x[" << bin2hexstr(str) << "] (\"" << str << "\")");
+	INFO("Expected: 0x[" << bin2hexstr(expected, 16) << "]");
 	md5cpp::md5 h1;
 	md5cpp::md5 h2;
 	md5cpp::md5 h3;
@@ -42,19 +99,36 @@ void check_single_update_hash(const string& str, const uint8_t* expected) {
 	h2.update(input.begin(), input.end());
 	h3.update(str);
 
-	h1.finalize(digest_result);
-	CHECK(0 == memcmp(expected, digest_result, 16));
-	h1.get_hash(digest_result);
-	CHECK(0 == memcmp(expected, digest_result, 16));
+	{	
+		h1.finalize(digest_result);
+		INFO("Got:      0x[" << bin2hexstr(digest_result, 16) << "]");
+		CHECK(0 == memcmp(expected, digest_result, 16));
+	}
 
-	h2.finalize(digest_result);
-	CHECK(0 == memcmp(expected, digest_result, 16));
-	h2.get_hash(digest_result);
-	CHECK(0 == memcmp(expected, digest_result, 16));
+	{	
+		h1.get_hash(digest_result);
+		INFO("Got:      0x[" << bin2hexstr(digest_result, 16) << "]");
+		CHECK(0 == memcmp(expected, digest_result, 16));
+	}
+	
+	{	
+		h2.finalize(digest_result);
+		INFO("Got:      0x[" << bin2hexstr(digest_result, 16) << "]");
+		CHECK(0 == memcmp(expected, digest_result, 16));
+	}
+
+	{	
+		h2.get_hash(digest_result);
+		INFO("Got:      0x[" << bin2hexstr(digest_result, 16) << "]");
+		CHECK(0 == memcmp(expected, digest_result, 16));
+	}
 }
 
 // test two update calls with same overall data as single call above
 void check_split_update_hash(const string& str, const uint8_t* expected) {
+	INFO("Input: 0x[" << bin2hexstr(str) << "] (\"" << str << "\")");
+	INFO("Expected: 0x[" << bin2hexstr(expected, 16) << "]");
+
 	md5cpp::md5 hasher;
 	uint8_t digest_result[16];
 
@@ -68,25 +142,31 @@ void check_split_update_hash(const string& str, const uint8_t* expected) {
 	hasher.update(input.data(), len1);
 	hasher.update(input.data()+len1, len2);
 
-	hasher.finalize(digest_result);
-	CHECK(0 == memcmp(expected, digest_result, 16));
+	{
+		hasher.finalize(digest_result);
+		INFO("Got:      0x[" << bin2hexstr(digest_result, 16) << "]");
+		CHECK(0 == memcmp(expected, digest_result, 16));
+	}
 
-	hasher.get_hash(digest_result);
-	CHECK(0 == memcmp(expected, digest_result, 16));
+	{
+		hasher.get_hash(digest_result);
+		INFO("Got:      0x[" << bin2hexstr(digest_result, 16) << "]");
+		CHECK(0 == memcmp(expected, digest_result, 16));
+	}
 }
 
 void check_all_variants(const string& str, const uint8_t* expected) {
 	check_single_update_hash(str, expected);
 	check_split_update_hash(str, expected);
 	check_single_update_hash_cli(str, expected);
+	check_incremental_hashes(str, expected);
 }
 
 void check_all_variants(const string& str, const string& expected) {
 	std::vector<uint8_t> exp_buffer(expected.size() / 2, 0x00);
 	common::hexstr2bin(expected.c_str(), exp_buffer.data());
-	check_single_update_hash(str, exp_buffer.data());
-	check_split_update_hash(str, exp_buffer.data());
-	check_single_update_hash_cli(str, exp_buffer.data());
+	
+	check_all_variants(str, exp_buffer.data());
 }
 
 TEST_CASE("MD5 standard testsuite") {
@@ -113,6 +193,13 @@ TEST_CASE("MD5 standard testsuite") {
 		check_all_variants("abcdefghijklmnopqrstuvwxyz", "c3fcd3d76192e4007dfb496cca67e13b");
 		check_all_variants("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", "d174ab98d277d9f5a5611c2c9f419d9f");
 		check_all_variants("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "57edf4a22be3c955ac49da2e2107b67a");
+	}
+
+	SECTION("md5:binary") {
+		const char buffer[] = "\x00\x01\x02";
+		string str(buffer, _countof(buffer));
+
+		check_all_variants(str, "0f0c725e025036e905dc2ed035406463");
 	}
 }
 

@@ -95,7 +95,7 @@ public:
 
 	private:
 		void transform();
-		void check_not_finalized(const char* context);
+		void check_finalized(bool expect_finalized, const char* context);
 };
 
 }

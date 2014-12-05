@@ -31,16 +31,20 @@ void md5::initialize() {
 	// Note: m_in uninitialzed: OK
 }
 
-void md5::check_not_finalized(const char* context) {
-	if (m_finalized) {
+void md5::check_finalized(bool expect_finalized, const char* context) {
+	if (!expect_finalized && m_finalized) {
 		std::stringstream ss;
 		ss << (context ? context : "") << " : md5 object @" << (void*)this << " is already finalized!";
+		throw std::logic_error(ss.str());
+	} else if (expect_finalized && !m_finalized) {
+		std::stringstream ss;
+		ss << (context ? context : "") << " : md5 object @" << (void*)this << " is not finalized!";
 		throw std::logic_error(ss.str());
 	}
 }
 
 void md5::update(const uint8_t* buf, size_t len) {
-	check_not_finalized(__FUNCTION__);
+	check_finalized(false, __FUNCTION__);
 
 	/* Update bitcount */
 	uint32_t t = m_bits[0];
@@ -87,7 +91,7 @@ void md5::update(const std::string& str) {
 }
 
 void md5::finalize(uint8_t* out_digest/*=nullptr*/) {
-	check_not_finalized(__FUNCTION__);
+	check_finalized(false, __FUNCTION__);
 
 	/* Compute number of bytes mod 64 */
 	uint32_t count = (m_bits[0] >> 3) & 0x3F;
@@ -121,7 +125,7 @@ void md5::finalize(uint8_t* out_digest/*=nullptr*/) {
 
 	transform();
 	byteReverse(m_buf, 4);
-
+	m_finalized = true;
 	if (out_digest) {
 		get_hash(out_digest);
 	}
@@ -132,6 +136,7 @@ void md5::finalize(uint8_t* out_digest/*=nullptr*/) {
 }
 
 void md5::get_hash(uint8_t* out_digest) {
+	check_finalized(true, __FUNCTION__);
 	memcpy(out_digest, m_buf, 16);
 }
 
