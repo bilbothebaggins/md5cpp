@@ -1,3 +1,7 @@
+# What's where
+
+* `src/md5/md5.sln` - VS2013 solution containing all the stuff.
+
 # md5cpp
 
 This is simply a C++ implementation of the MD5 hashing algorithm.
@@ -18,6 +22,8 @@ what I have installed already.
 
 A .NET C++/CLI wrapper for my `md5cpp`.
 
-Actually the *Raison d'être* for that whole stuff here (also the C++ version) 
-and I'll certainly come around to writing about it once I've finished the 
-implementation :-)
+Actually the *Raison d'Ãªtre* for that whole stuff here (also the C++ version).
+
+Found the existing .NET implementation lacking, needed a replacement, didn't find something to my liking, put together my own.
+
+Should be easy to use, maybe could use some work to use a more similar interface to the stock .NET stuff.
