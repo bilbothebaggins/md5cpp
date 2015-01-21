@@ -1,4 +1,4 @@
-# What's where
+﻿# What's where
 
 * `src/md5/md5.sln` - VS2013 solution containing all the stuff.
 
@@ -26,4 +26,4 @@ Actually the *Raison d'être* for that whole stuff here (also the C++ version).
 
 Found the existing .NET implementation lacking, needed a replacement, didn't find something to my liking, put together my own.
 
-Should be easy to use, maybe could use some work to use a more similar interface to the stock .NET stuff.
+Should be easy to use, now also implements ICryptoTransform.
