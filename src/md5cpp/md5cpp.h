@@ -74,14 +74,14 @@ public:
 
 	//! Update context to reflect the concatenation of another buffer full
 	//! of bytes.
-	void update(const uint8_t* buf, size_t len);
+	void update(const uint8_t* buf, uint32_t len);
 	void update(const std::string& data);
 
 	template<typename Iterator>
 	void update(Iterator begin, Iterator end) {
 		typedef std::iterator_traits<Iterator>::iterator_category it_cat;
 		static_assert(std::is_base_of<std::random_access_iterator_tag, it_cat>::value, "Iterator category must be random access!");
-		const size_t len = end - begin;
+		const int len = static_cast<int>(end - begin);
 		if (len > 0) {
 			update(&*begin, len);
 		}

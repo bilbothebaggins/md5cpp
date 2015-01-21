@@ -43,7 +43,7 @@ void md5::check_finalized(bool expect_finalized, const char* context) {
 	}
 }
 
-void md5::update(const uint8_t* buf, size_t len) {
+void md5::update(const uint8_t* buf, uint32_t len) {
 	check_finalized(false, __FUNCTION__);
 
 	/* Update bitcount */
@@ -87,7 +87,7 @@ void md5::update(const uint8_t* buf, size_t len) {
 }
 
 void md5::update(const std::string& str) {
-	update(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+	update(reinterpret_cast<const uint8_t*>(str.data()), static_cast<uint32_t>(str.size()));
 }
 
 void md5::finalize(uint8_t* out_digest/*=nullptr*/) {

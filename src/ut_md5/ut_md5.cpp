@@ -9,9 +9,9 @@ using namespace System;
 using namespace common;
 
 array<Byte>^ make_clrarray(const string& str) {
-	array<Byte>^ managed_array = gcnew array<Byte>(str.size());
+	array<Byte>^ managed_array = gcnew array<Byte>(static_cast<int>(str.size()));
 	IntPtr ptr((void*)str.data());
-	System::Runtime::InteropServices::Marshal::Copy(ptr, managed_array, 0, str.size());
+	System::Runtime::InteropServices::Marshal::Copy(ptr, managed_array, 0, static_cast<int>(str.size()));
 	return managed_array;
 }
 
@@ -66,6 +66,24 @@ void check_incremental_hashes(const string& str, const uint8_t* expected) {
 	}
 }
 
+// Test of the .NET ICryptoTransform
+void check_single_update_hash_cli_icrypto(const string& str, const uint8_t* expected) {
+	INFO("Input: 0x[" << bin2hexstr(str) << "] (\"" << str << "\")");
+	INFO("Expected: 0x[" << bin2hexstr(expected, 16) << "]");
+	array<Byte>^ input = make_clrarray(str);
+
+	MD5Cli::MD5^ h1 = gcnew MD5Cli::MD5();
+	
+	h1->TransformBlock(input, 0, input->Length, nullptr, 0);
+	array<Byte>^ result = h1->TransformFinalBlock(input, 0, 0);
+
+	REQUIRE(result->Length > 0);
+
+	pin_ptr<Byte> p_result = &result[0];
+	INFO("Got:      0x[" << bin2hexstr(p_result, 16) << "]");
+	CHECK(0 == memcmp(expected, p_result, 16));
+}
+
 // Test of the .NET class
 void check_single_update_hash_cli(const string& str, const uint8_t* expected) {
 	INFO("Input: 0x[" << bin2hexstr(str) << "] (\"" << str << "\")");
@@ -73,7 +91,7 @@ void check_single_update_hash_cli(const string& str, const uint8_t* expected) {
 	array<Byte>^ input = make_clrarray(str);
 
 	MD5Cli::MD5^ h1 = gcnew MD5Cli::MD5();
-	
+
 	h1->Update(input);
 	array<Byte>^ result = h1->FinalizeHash()->GetDigest();
 
@@ -95,7 +113,7 @@ void check_single_update_hash(const string& str, const uint8_t* expected) {
 	uint8_t digest_result[16];
 
 	vector<uint8_t> input(str.begin(), str.end());
-	h1.update(input.data(), input.size());
+	h1.update(input.data(), static_cast<int>(input.size()));
 	h2.update(input.begin(), input.end());
 	h3.update(str);
 
@@ -134,9 +152,9 @@ void check_split_update_hash(const string& str, const uint8_t* expected) {
 
 	vector<uint8_t> input(str.begin(), str.end());
 
-	size_t len = input.size();
-	size_t len2 = len / 2;
-	size_t len1 = len - len2;
+	int32_t len = static_cast<int32_t>(input.size());
+	int32_t len2 = len / 2;
+	int32_t len1 = len - len2;
 	assert(len1 + len2 == len);
 
 	hasher.update(input.data(), len1);
@@ -159,6 +177,7 @@ void check_all_variants(const string& str, const uint8_t* expected) {
 	check_single_update_hash(str, expected);
 	check_split_update_hash(str, expected);
 	check_single_update_hash_cli(str, expected);
+	check_single_update_hash_cli_icrypto(str, expected);
 	check_incremental_hashes(str, expected);
 }
 
