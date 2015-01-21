@@ -87,7 +87,7 @@ namespace PerfTest1
 
             if (log)
             {
-                Console.WriteLine("{0}\n took {1} to TEST {2} MB of data.", "'42=answer'", timer.Elapsed, mb);
+                Console.WriteLine("{0}\n took {1} to TEST {2} MB of data.", "(Dummy operations)", timer.Elapsed, mb);
                 Console.WriteLine("  That is {0} MB/sec.", mb / timer.Elapsed.TotalSeconds);
                 Console.WriteLine();
             }
@@ -95,6 +95,8 @@ namespace PerfTest1
 
         static void Main(string[] args)
         {
+            Console.WriteLine("Running performance comparison of my MD5Cli.MD5 class vs. the stock .NET System.Security...MD5 class ...");
+            Console.WriteLine("- This is a {0} bit process -", IntPtr.Size * 8);
             Console.WriteLine("Warm-up ...");
             for (int i = 0; i < 2; ++i)
             {
@@ -106,7 +108,7 @@ namespace PerfTest1
             Console.WriteLine("Run Tests ...");
             DoHash(MD5.Create(), true);
             DoStuff(true);
-            // DoHash(new MD5Cli.MD5(), true);
+            DoHash(new MD5Cli.MD5(), true);
         }
     }
 }
