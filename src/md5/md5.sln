@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "md5cpp", "..\md5cpp\md5cpp.vcxproj", "{F1E1498D-5B11-4865-81FD-19BD7707AFF0}"
 EndProject
@@ -10,6 +10,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "md5cli", "..\md5cli\md5cli.vcxproj", "{AD81AE54-7A40-4557-BF9E-F14C77BABECA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfTest1", "..\PerfTest1\PerfTest1.csproj", "{36E2832B-5E66-425C-856D-5AFB1DF0B577}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{8DD3E061-83C2-46B5-A632-DD3F31A2300E}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\.travis.yml = ..\..\.travis.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
